@@ -17,7 +17,7 @@ public class Base : MonoBehaviour
     private UIManager uiManager;
 
     [SerializeField]
-    private DoorTouch doorTouch;
+    private RoomController doorTouch;
 
     [SerializeField]
     private ARPlaneManager arPlaneManager;
@@ -63,7 +63,7 @@ public class Base : MonoBehaviour
         }
     }
 
-    public DoorTouch DoorTouch
+    public RoomController RoomController
     {
         get 
         {

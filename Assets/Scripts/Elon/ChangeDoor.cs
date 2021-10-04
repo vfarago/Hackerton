@@ -5,7 +5,7 @@ using UnityEngine;
 public class ChangeDoor : MonoBehaviour
 {
     //  문 열고 닫는 Script 
-    //  Kevin님이 만든 DoorTouch에 있는 DoorAction 코루틴에 접근할 방법 못찾아서 따로 만듬
+    //  Kevin님이 만든 RoomController에 있는 DoorAction 코루틴에 접근할 방법 못찾아서 따로 만듬
     public void SetDoor(bool _isOpen)
     {
         StartCoroutine(ChangeDoorAction(_isOpen));

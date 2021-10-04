@@ -9,13 +9,13 @@ public class CamPosition : MonoBehaviour
     [SerializeField] private Transform head;
     Camera main;
 
-    private DoorTouch doorTouch;
+    private RoomController doorTouch;
     private bool isExDoor, isInDoor;
     private Vector2 start, end;
 
     private void Awake()
     {
-        doorTouch = FindObjectOfType<DoorTouch>();
+        doorTouch = FindObjectOfType<RoomController>();
 
         isExDoor = false;
         isInDoor = false;
@@ -54,8 +54,4 @@ public class CamPosition : MonoBehaviour
         camDebug.text = string.Format("ex:{0}, in:{1}, dd:{2}  pass", isExDoor, isInDoor, main.transform.eulerAngles);
     }
 
-    private void CheckDirection()
-    {
-
-    }
 }

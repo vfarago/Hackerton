@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.ARFoundation;
 
 public class UIManager : MonoBehaviour
 {
@@ -19,101 +19,83 @@ public class UIManager : MonoBehaviour
     private int pageNum;
 
     private float backTimer;
+
+
+
+    //at OpeningListener
+    public GameObject selBooth, selRoom;
+
+    public Button experence, meeting, mr_reset;
+    public Button[] btns;
+
+    public GameObject mainLight, videoLight, openingPanel;
+    public GameObject canvas;
+    
+
+    public Button resetBtn;
+
+    ARPlaneManager arPlaneManager;
+    RoomController doorTouch;
+    public static int ROOMNUM { get; set; }
+
     private void Awake()
-    {       
+    {
+
+        arPlaneManager = FindObjectOfType<ARPlaneManager>();
+        doorTouch = arPlaneManager.GetComponent<RoomController>();
 
         btn_option.onClick.AddListener(() => OptionController());
-
+        backBtn.onClick.AddListener(() =>
+        {
+            BackBtn();
+        });
         sl_option.maxValue = 1.7f;
         sl_option.onValueChanged.AddListener(delegate
         {
             ChangeLight(sl_option.value);
         });
-
-        //adults.GetComponent<Brosher>().sprs = Resources.LoadAll<Material>("Brosher/Adults/Materials");
-        //kids.GetComponent<Brosher>().sprs = Resources.LoadAll<Material>("Brosher/Kids/Materials");
-
-        //임시로 만든 버튼, 후에 수정 예정
-        backBtn.onClick.AddListener(() =>
+        mr_reset.onClick.AddListener(() => ResetRot());
+        experence.onClick.AddListener(() =>
         {
-            BackBtn();
+            selBooth.SetActive(false);
+            selRoom.SetActive(true);
         });
-
-        //brosherSet.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    pageNum = 0;
-        //    adults.SetActive(true);
-        //    adults.transform.GetChild(0).GetComponent<Image>().sprite = adults.GetComponent<Brosher>().sprs[0];
-        //    brosherSet.SetActive(false);
-        //});
-        //brosherSet.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    pageNum = 0;
-        //    kids.SetActive(true);
-        //    kids.transform.GetChild(0).GetComponent<Image>().sprite = kids.GetComponent<Brosher>().sprs[0];
-        //    brosherSet.SetActive(false);
-        //});
-        //brosherSet.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    brosherSet.SetActive(false);
-        //});
-
-        //adults.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    if (pageNum != 0)
-        //    {
-        //        pageNum--;
-        //        adults.transform.GetChild(0).GetComponent<Image>().sprite = adults.GetComponent<Brosher>().sprs[pageNum];
-        //    }
-        //});
-        //adults.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    if (pageNum < adults.GetComponent<Brosher>().sprs.Length-1)
-        //    {
-        //        pageNum++;
-        //        adults.transform.GetChild(0).GetComponent<Image>().sprite = adults.GetComponent<Brosher>().sprs[pageNum];
-        //    }
-        //});
-
-        //kids.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    if (pageNum != 0)
-        //    {
-        //        pageNum--;
-        //        kids.transform.GetChild(0).GetComponent<Image>().sprite = kids.GetComponent<Brosher>().sprs[pageNum];
-        //    }
-        //});
-        //kids.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    if (pageNum < kids.GetComponent<Brosher>().sprs.Length-1)
-        //    {
-        //        pageNum++;
-        //        kids.transform.GetChild(0).GetComponent<Image>().sprite = kids.GetComponent<Brosher>().sprs[pageNum];
-        //    }
-
-        //});
-
-        //adults.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    adults.transform.GetChild(0).GetComponent<Image>().sprite = null;
-        //    adults.SetActive(false);
-        //    pageNum = 0;
-        //    brosherSet.SetActive(true);
-        //});
-        //kids.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    kids.transform.GetChild(0).GetComponent<Image>().sprite = null;
-        //    kids.SetActive(false);
-        //    pageNum = 0;
-        //    brosherSet.SetActive(true);
-        //});
+        meeting.onClick.AddListener(() =>
+        {
+            for (int i = 0; i < canvas.transform.childCount; i++)
+            {
+                canvas.transform.GetChild(i).gameObject.SetActive(false);
+                if (i == 2 || i == 3)
+                {
+                    canvas.transform.GetChild(i).gameObject.SetActive(true);
+                }
+            }
+            videoLight.SetActive(true);
+            GameObject obj = Instantiate(Resources.Load("prefabs/MRPivot") as GameObject);
+        });
+        btns = selRoom.GetComponentsInChildren<Button>();
+        for (int i = 0; i < btns.Length; i++)
+        {
+            int number = i;
+            if (number > 2)
+            {
+                btns[number].interactable = false;
+            }
+            btns[number].onClick.AddListener(() =>
+            {
+                ROOMNUM = number;
+                OnClickGo();
+            });
+        }
 
         brosherSet.SetActive(false);
-        //adults.SetActive(false);
-        //kids.SetActive(false);
-
         bg_option.SetActive(false);
+
+
+        SetSession(false);
+        selRoom.SetActive(false);
     }
+
 
     private void Update()
     {
@@ -136,17 +118,17 @@ public class UIManager : MonoBehaviour
     {
         bg_option.SetActive(!bg_option.activeSelf);
 
-        if (Base.Instance.DoorTouch.roomLight != null)
+        if (Base.Instance.RoomController.roomLight != null)
         {
-            sl_option.value = Base.Instance.DoorTouch.roomLight.intensity;
+            sl_option.value = Base.Instance.RoomController.roomLight.intensity;
         }
     }
 
     private void ChangeLight(float value)
     {
-        if (Base.Instance.DoorTouch.roomLight != null)
+        if (Base.Instance.RoomController.roomLight != null)
         {
-            Base.Instance.DoorTouch.roomLight.intensity = value;
+            Base.Instance.RoomController.roomLight.intensity = value;
         }
     }
 
@@ -158,5 +140,29 @@ public class UIManager : MonoBehaviour
     public void BackBtn()
     {
         SceneManager.LoadScene(0);
+    }
+
+
+
+
+    private void ResetRot()
+    {
+        FindObjectOfType<ObjectFix>().LookCam();
+    }
+
+    void OnClickGo()
+    {
+        openingPanel.SetActive(false);
+        mainLight.SetActive(true);
+        SetSession(true);
+    }
+
+
+
+    private void SetSession(bool on)
+    {
+        resetBtn.interactable = !on;
+        arPlaneManager.enabled = on;
+        doorTouch.enabled = on;
     }
 }

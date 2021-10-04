@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.Video;
 
-public class DoorTouch : MonoBehaviour
+public class RoomController : MonoBehaviour
 {
     [SerializeField] private GameObject initGo, bubble;
     [SerializeField] private GameObject[] roomInit;
@@ -28,7 +28,6 @@ public class DoorTouch : MonoBehaviour
     {       
         isRoom = false;
 
-        //go_door = Instantiate(roomInit);
         go_door = Instantiate(initGo);
 
         go_door.transform.localScale = Vector3.zero;
@@ -48,6 +47,7 @@ public class DoorTouch : MonoBehaviour
             Ray tRay = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             if (Physics.Raycast(tRay, out RaycastHit tHit, 100f))
             {
+                //터치시 레이 쏴서 맞은게 Door일 경우 문짝열고 방 생성
                 if (tHit.collider.name.Contains("Door"))
                 {
                     EnterTheRoom(tHit.collider.gameObject);
@@ -157,23 +157,25 @@ public class DoorTouch : MonoBehaviour
         if (Input.touchCount > 0)
             return;
 
+
         Ray ray = Camera.main.ScreenPointToRay(center);
         if (Physics.Raycast(ray, out RaycastHit hit, 100f))
         {
             if (hit.collider.name.Contains("ARPlane"))
             {
-                CreateCube(hit.point, hit.collider.transform.eulerAngles);
+                CreateDoor(hit.point, hit.collider.transform.eulerAngles);
             }
         }
     }    
 
-
+    //터치한거 무엇인가 보여주는거
     private void WhatisThis(bool on, string name)
     {
         bubble.SetActive(on);
         bubble.GetComponentInChildren<Text>().text = name;
     }
 
+    //방 들어갈때
     private void EnterTheRoom(GameObject go)
     {
         isRoom = true;
@@ -187,6 +189,7 @@ public class DoorTouch : MonoBehaviour
         }));
     }
 
+    //방 세팅할때
     public void SetRoom(bool on)
     {
         if (on)
@@ -197,7 +200,8 @@ public class DoorTouch : MonoBehaviour
             }
             else
             {
-                go_room = Instantiate(roomInit[OpeningListener.ROOMNUM]);
+                //방넘버 가져와서 복제
+                go_room = Instantiate(roomInit[UIManager.ROOMNUM]);
 
                 roomLight = go_room.GetComponentInChildren<Light>();
             }
@@ -220,6 +224,7 @@ public class DoorTouch : MonoBehaviour
         }
     }
 
+    //문짝 여는 애니메이션
     IEnumerator DoorAction(bool on, GameObject go, Action done)
     {
         float start = on ? 0f : -175f;
@@ -238,7 +243,8 @@ public class DoorTouch : MonoBehaviour
         done();
     }
 
-    private void CreateCube(Vector3 point, Vector3 groundRot)
+    //문짝 세팅
+    private void CreateDoor(Vector3 point, Vector3 groundRot)
     {
         go_door.transform.position = point;
         go_door.transform.localScale = Vector3.one;
@@ -249,7 +255,7 @@ public class DoorTouch : MonoBehaviour
         go_door.transform.eulerAngles = new Vector3(groundRot.x, goRot.y, goRot.z);
     }
 
-
+    //플레인 인식 모두 끄기
     private void SetAllPlanesActive(bool value)
     {
         Base.Instance.ARPlaneManager.enabled = false;

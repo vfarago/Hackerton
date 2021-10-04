@@ -1256,7 +1256,6 @@ GameObject:
   m_Component:
   - component: {fileID: 171940345}
   - component: {fileID: 171940346}
-  - component: {fileID: 171940347}
   m_Layer: 0
   m_Name: uiManager
   m_TagString: Untagged
@@ -1297,18 +1296,6 @@ MonoBehaviour:
   brosherSet: {fileID: 259266223}
   adults: {fileID: 40919614}
   kids: {fileID: 223974226}
---- !u!114 &171940347
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171940344}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b57c4673feb85f9429551c18b939c017, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   selBooth: {fileID: 965988247}
   selRoom: {fileID: 1083090590}
   experence: {fileID: 709035105}
@@ -4350,6 +4337,7 @@ MonoBehaviour:
   uiManager: {fileID: 171940346}
   doorTouch: {fileID: 460418296}
   arPlaneManager: {fileID: 460418293}
+  objectManager: {fileID: 0}
 --- !u!4 &1164900953
 Transform:
   m_ObjectHideFlags: 0
